@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        form {
+            border: 3px solid #f1f1f1;
+        }
+
+        input[type=text],
+        input[type=password] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #04AA6D;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .imgcontainer {
+            text-align: center;
+            margin: 24px 0 12px 0;
+        }
+
+        img.avatar {
+            width: 40%;
+            border-radius: 50%;
+        }
+
+        .container {
+            padding: 16px;
+        }
+
+        span.psw {
+            float: right;
+            padding-top: 16px;
+        }
+
+        /* Change styles for span and cancel button on extra small screens */
+        @media screen and (max-width: 300px) {
+            span.psw {
+                display: block;
+                float: none;
+            }
+        }
+    </style>
+
+    <script type="text/javascript">
+
+        window.onload = async function () {
+            console.log("looking")
+            var form = document.getElementById("myForm")
+            form.onsubmit = async function (event) {
+                event.preventDefault()
+
+                var username = document.getElementsByName("uname")[0].value
+
+                var pass = document.getElementsByName("psw")[0].value
+
+                var res = await fetch("/api/login", {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: username,
+                        password: pass
+                    })
+                })
+                var json = await res.json()
+                console.log(json)
+                json.user.Chatrooms.forEach(cr => {
+                    var ref = document.createElement("a");
+                    ref.href = "/chatroom?id=" + cr.Id + "&us=" + json.user.Username
+                    var buttonEl = document.createElement("button");
+                    buttonEl.innerText = cr.Name
+                    ref.appendChild(buttonEl)
+                    document.getElementById("chatrooms").appendChild(ref);
+                });
+
+                var elements = form.elements;
+                for (var i = 0, len = elements.length; i < len; ++i) {
+                    elements[i].readOnly = true;
+                }
+
+
+            };
+        }
+
+
+
+    </script>
+</head>
+
+<body>
+
+    <h2>Chatroom Login</h2>
+    <div class="container" style="max-width: 500px;">
+        <form id="myForm" , onsubmit="myFunction()">
+            <div class="imgcontainer">
+                <img src="assets/avatar.png" class="avatar" alt="Avatar">
+            </div>
+
+            <div class="container">
+                <label for="uname"><b>Username</b></label>
+                <input type="text" placeholder="Enter Username" name="uname" required>
+
+                <label for="psw"><b>Password</b></label>
+                <input type="password" placeholder="Enter Password" name="psw" required>
+
+                <button type="submit">Login</button>
+            </div>
+
+        </form>
+
+        <div class="container" id="chatrooms">
+
+        </div>
+    </div>
+
+
+</body>
+
+</html>
