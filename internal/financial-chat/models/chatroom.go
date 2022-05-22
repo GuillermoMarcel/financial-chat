@@ -8,10 +8,9 @@ import (
 
 type Chatroom struct {
 	gorm.Model
-	ChatroomId string `gorm:"primaryKey"`
 	Name       string
-	Members    []*User    `gorm:"many2many:user_chatrooms;"`
-	Messages   []*Message `gorm:"foreignKey:ChatroomId"`
+	Members    []*User    `gorm:"many2many:user_chatrooms;" json:",omitempty"`
+	Messages   []*Message `gorm:"foreignKey:ChatroomId;" json:",omitempty"`
 }
 
 type Message struct {

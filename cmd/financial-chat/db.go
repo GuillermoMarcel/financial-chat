@@ -32,27 +32,23 @@ func initializeDatabase(db *gorm.DB) error {
 	}
 
 	user1 :=&models.User{
-		ID: "us-01",
 		Username: "guille",
 		Password: "guille",
 		Name:     "Guillermo",
 	}
 
 	user2 := &models.User{
-		ID: "us-02",
 		Username: "andre",
 		Password: "asdf",
 		Name:     "Andrea",
 	}
 
 	chat1 := &models.Chatroom{
-		ChatroomId: "cr-001",
 		Name:       "The very first",
 		Members: []*models.User{user1, user2},
 	}
 
 	chat2 := &models.Chatroom{
-		ChatroomId: "cr-002",
 		Name:       "Second best",
 		Members: []*models.User{user1,user2},
 	}

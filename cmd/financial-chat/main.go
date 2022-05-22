@@ -24,7 +24,9 @@ func main() {
 	}
 	logger.Printf("databse initialized %s\n", db.Name())
 
-	userRepo := repositories.UserRepo{}
+	userRepo := repositories.UserRepo{
+		DB: db,
+	}
 	chatRepo := repositories.ChatroomRepo{}
 
 	chatService := wschat.NewChatroomService(log.Default(), &chatRepo, &userRepo)

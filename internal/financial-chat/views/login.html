@@ -88,7 +88,7 @@
                 console.log(json)
                 json.user.Chatrooms.forEach(cr => {
                     var ref = document.createElement("a");
-                    ref.href = "/chatroom?id=" + cr.Id + "&us=" + json.user.Username
+                    ref.href = "/chatroom?id=" + cr.ID + "&us=" + json.user.Username
                     var buttonEl = document.createElement("button");
                     buttonEl.innerText = cr.Name
                     ref.appendChild(buttonEl)

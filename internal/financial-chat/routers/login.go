@@ -24,7 +24,7 @@ type LoginController struct {
 
 func (lc LoginController) Login(c *gin.Context) {
 
-	var request models.User
+	var request models.LoginRequest
 
 	err := c.ShouldBindJSON(&request)
 	if err != nil {

@@ -4,21 +4,26 @@ import (
 	"log"
 
 	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/models"
+	"gorm.io/gorm"
 )
 
 type UserRepo struct {
-	log *log.Logger
+	Log *log.Logger
+	DB *gorm.DB
 }
 
 func (r UserRepo) LoginUser(username string, password string) *models.User {
-	if username == "nil" {
+
+	var result models.User
+	r.DB.Where(&models.User{Username: username}).Preload("Chatrooms").First(&result)
+
+	if result.Username =="" {
 		return nil
 	}
-	return &models.User{
-		Username: username,
-		Password: "***",
-		Name:     "Juan",
+	if result.Password == password {
+		return &result
 	}
+	return nil
 }
 
 func (r UserRepo) FindUser(username string) *models.User {

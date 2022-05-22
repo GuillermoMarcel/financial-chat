@@ -13,13 +13,13 @@ type ChatroomService struct {
 	log          *log.Logger
 	chatroomRepo *repositories.ChatroomRepo
 	userRepo     *repositories.UserRepo
-	hubs         map[string]*hub
+	hubs         map[uint]*hub
 	incoming     chan incomingMessage
 }
 
 func NewChatroomService(log *log.Logger, chatRepo *repositories.ChatroomRepo, userRepo *repositories.UserRepo) *ChatroomService {
 	log.SetPrefix("ChatService")
-	hubs := make(map[string]*hub)
+	hubs := make(map[uint]*hub)
 	incChan := make(chan incomingMessage)
 	cs := ChatroomService{
 		hubs:         hubs,
@@ -32,21 +32,21 @@ func NewChatroomService(log *log.Logger, chatRepo *repositories.ChatroomRepo, us
 	return &cs
 }
 
-func (s ChatroomService) initChatroom(chatId string) *hub {
-	s.log.Printf("initializing chatroom, chatId: %s\n", chatId)
+func (s ChatroomService) initChatroom(chatId uint) *hub {
+	s.log.Printf("initializing chatroom, chatId: %d\n", chatId)
 	hub := newHub()
 	go hub.run()
 	s.hubs[chatId] = hub
 	return hub
 }
 
-func (s ChatroomService) RegisterIncoming(w http.ResponseWriter, r *http.Request, chatroomId string, userId string) error {
+func (s ChatroomService) RegisterIncoming(w http.ResponseWriter, r *http.Request, chatroomId uint, userId string) error {
 
 	user := s.userRepo.FindUser(userId)
 
 	member := false
 	for _, c := range user.Chatrooms {
-		if c.ChatroomId == chatroomId {
+		if c.ID == chatroomId {
 			member = true
 			break
 		}
