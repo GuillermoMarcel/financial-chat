@@ -126,6 +126,6 @@ func (c *Client) WritePump() {
 
 type incomingMessage struct {
 	content []byte
-	client *Client
-	user models.User
+	client  *Client
+	user    models.User
 }

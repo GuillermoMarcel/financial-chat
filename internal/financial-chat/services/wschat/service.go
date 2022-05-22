@@ -10,28 +10,29 @@ import (
 )
 
 type ChatroomService struct {
-	log *log.Logger
+	log          *log.Logger
 	chatroomRepo *repositories.ChatroomRepo
-	userRepo *repositories.UserRepo
-	hubs map[string]*hub
-	incoming chan incomingMessage
+	userRepo     *repositories.UserRepo
+	hubs         map[string]*hub
+	incoming     chan incomingMessage
 }
-func NewChatroomService(log *log.Logger, chatRepo *repositories.ChatroomRepo, userRepo *repositories.UserRepo) *ChatroomService{
+
+func NewChatroomService(log *log.Logger, chatRepo *repositories.ChatroomRepo, userRepo *repositories.UserRepo) *ChatroomService {
 	log.SetPrefix("ChatService")
-	hubs :=  make(map[string]*hub)
+	hubs := make(map[string]*hub)
 	incChan := make(chan incomingMessage)
 	cs := ChatroomService{
-		hubs: hubs,
+		hubs:         hubs,
 		chatroomRepo: chatRepo,
-		userRepo: userRepo,
-		log: log,
-		incoming: incChan,
+		userRepo:     userRepo,
+		log:          log,
+		incoming:     incChan,
 	}
 	go cs.readIncoming()
 	return &cs
 }
 
-func(s ChatroomService) initChatroom(chatId string) *hub{
+func (s ChatroomService) initChatroom(chatId string) *hub {
 	s.log.Printf("initializing chatroom, chatId: %s\n", chatId)
 	hub := newHub()
 	go hub.run()
@@ -39,15 +40,15 @@ func(s ChatroomService) initChatroom(chatId string) *hub{
 	return hub
 }
 
-func (s ChatroomService) RegisterIncoming(w http.ResponseWriter, r *http.Request, chatroomId string, userId string) error{
+func (s ChatroomService) RegisterIncoming(w http.ResponseWriter, r *http.Request, chatroomId string, userId string) error {
 
 	user := s.userRepo.FindUser(userId)
 
 	member := false
-	for _, c := range(user.Chatrooms){
-		if c.Id == chatroomId {
+	for _, c := range user.Chatrooms {
+		if c.ChatroomId == chatroomId {
 			member = true
-			break	
+			break
 		}
 	}
 	if !member {
@@ -56,7 +57,7 @@ func (s ChatroomService) RegisterIncoming(w http.ResponseWriter, r *http.Request
 
 	hub, ok := s.hubs[chatroomId]
 
-	if !ok{
+	if !ok {
 		hub = s.initChatroom(chatroomId)
 	}
 
@@ -70,11 +71,11 @@ func (s ChatroomService) RegisterIncoming(w http.ResponseWriter, r *http.Request
 	}
 
 	client := &Client{
-		Hub: hub, 
-		Conn: conn, 
-		Send: make(chan []byte, 256),
+		Hub:    hub,
+		Conn:   conn,
+		Send:   make(chan []byte, 256),
 		recive: s.incoming,
-		user: user,
+		user:   user,
 	}
 	client.Hub.register <- client
 
@@ -86,14 +87,14 @@ func (s ChatroomService) RegisterIncoming(w http.ResponseWriter, r *http.Request
 	return nil
 }
 
-func (s ChatroomService) readIncoming(){
+func (s ChatroomService) readIncoming() {
 	defer close(s.incoming)
-	for{
-		message := <- s.incoming
+	for {
+		message := <-s.incoming
 		content := string(message.content)
 
 		outgoing := fmt.Sprintf("%s: %s", message.user.Name, content)
 
-		message.client.Hub.broadcast <-  []byte(outgoing)
+		message.client.Hub.broadcast <- []byte(outgoing)
 	}
 }

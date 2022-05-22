@@ -11,18 +11,18 @@ import (
 
 const (
 	MissingFields = "Missing fields"
-	ErrInput = "Could not read input"
+	ErrInput      = "Could not read input"
 	NotAuthorized = "Not Authorized"
-	MessageField = "message"
-	UserField = "user"
+	MessageField  = "message"
+	UserField     = "user"
 )
 
 type LoginController struct {
-	Log *log.Logger
+	Log  *log.Logger
 	Repo *repositories.UserRepo
 }
 
-func (lc LoginController) Login(c *gin.Context){
+func (lc LoginController) Login(c *gin.Context) {
 
 	var request models.User
 

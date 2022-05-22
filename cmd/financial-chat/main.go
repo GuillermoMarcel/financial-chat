@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/repositories"
 	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/routers"
@@ -11,9 +12,12 @@ import (
 )
 
 func main() {
+
+	os.RemoveAll("../../database.db")
+
 	logger := log.Default()
 
-	db, err := initializeDatabase()
+	db, err := openDatabase()
 	if err != nil {
 		logger.Fatal(err)
 		return
@@ -25,13 +29,12 @@ func main() {
 
 	chatService := wschat.NewChatroomService(log.Default(), &chatRepo, &userRepo)
 
-
 	loginController := routers.LoginController{
-		Log: logger,
+		Log:  logger,
 		Repo: &userRepo,
 	}
 	chatroomController := routers.ChatRoomRouter{
-		Logger: logger,
+		Logger:  logger,
 		Service: chatService,
 	}
 
@@ -43,10 +46,8 @@ func main() {
 	{
 		api.POST("/login", loginController.Login)
 
-		api.Any("/chatroom/ws", chatroomController.OpenChatroom)
+		api.GET("/chatroom/ws", chatroomController.OpenChatroom)
 	}
-
-
 
 	r.LoadHTMLGlob("../../internal/financial-chat/views/*.html")
 	r.Static("/assets", "../../internal/financial-chat/assets")

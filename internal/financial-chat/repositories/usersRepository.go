@@ -10,43 +10,21 @@ type UserRepo struct {
 	log *log.Logger
 }
 
-func (r UserRepo) LoginUser(username string, password string) *models.User{
-	if username == "nil"{
+func (r UserRepo) LoginUser(username string, password string) *models.User {
+	if username == "nil" {
 		return nil
 	}
 	return &models.User{
 		Username: username,
 		Password: "***",
-		Name: "Juan",
-		Chatrooms: []models.Chatroom{
-			{
-				Id: "cr-001",
-				Name: "First chroom",
-			},
-			{
-				Id: "asdf002",
-				Name: "Test seccond",
-			},
-		},
+		Name:     "Juan",
 	}
 }
 
-func (r UserRepo) FindUser(username string) *models.User{
+func (r UserRepo) FindUser(username string) *models.User {
 	return &models.User{
 		Username: username,
 		Password: "***",
-		Name: "Juan",
-		Chatrooms: []models.Chatroom{
-			{
-				Id: "cr-001",
-				Name: "First chroom",
-			},
-			{
-				Id: "cr-002",
-				Name: "Test seccond",
-			},
-		},
+		Name:     "Juan",
 	}
 }
-
-

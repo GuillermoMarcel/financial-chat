@@ -19,7 +19,7 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func (r ChatRoomRouter) OpenChatroom(c *gin.Context){
+func (r ChatRoomRouter) OpenChatroom(c *gin.Context) {
 	chatid, ok := c.GetQuery("chatroom")
 	if !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "chatroom id requestd"})
@@ -31,7 +31,6 @@ func (r ChatRoomRouter) OpenChatroom(c *gin.Context){
 		return
 	}
 	r.Logger.Printf("Incoming connection, chat: %s, user: %s", chatid, userId)
-	
 
 	err := r.Service.RegisterIncoming(c.Writer, c.Request, chatid, userId)
 	if err != nil {
@@ -39,9 +38,9 @@ func (r ChatRoomRouter) OpenChatroom(c *gin.Context){
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err})
 		return
 	}
-	
+
 }
 
-func (r ChatRoomRouter) SendMessage(c *gin.Context){
-	
+func (r ChatRoomRouter) SendMessage(c *gin.Context) {
+
 }
