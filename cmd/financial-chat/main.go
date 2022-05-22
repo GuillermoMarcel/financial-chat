@@ -14,9 +14,9 @@ func main() {
 	logger := log.Default()
 
 	userRepo := repositories.UserRepo{}
+	chatRepo := repositories.ChatroomRepo{}
 
-	hub := wschat.NewHub()
-	go hub.Run()
+	chatService := wschat.NewChatroomService(log.Default(), &chatRepo, &userRepo)
 
 
 	loginController := routers.LoginController{
@@ -25,7 +25,7 @@ func main() {
 	}
 	chatroomController := routers.ChatRoomRouter{
 		Logger: logger,
-		Hub: hub,
+		Service: chatService,
 	}
 
 	viewController := routers.ViewsController{}

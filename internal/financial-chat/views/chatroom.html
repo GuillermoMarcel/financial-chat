@@ -9,6 +9,9 @@
             var msg = document.getElementById("msg");
             var log = document.getElementById("log");
 
+            var user = '{{.username}}'
+            var chatroom = '{{.chatroomId}}'
+
             function appendLog(item) {
                 var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
                 log.appendChild(item);
@@ -30,13 +33,17 @@
             };
 
             if (window["WebSocket"]) {
-                conn = new WebSocket("ws://" + document.location.host + "/api/chatroom/ws");
-                conn.
-                    conn.onclose = function (evt) {
-                        var item = document.createElement("div");
-                        item.innerHTML = "<b>Connection closed.</b>";
-                        appendLog(item);
-                    };
+                conn = new WebSocket("ws://" + document.location.host + "/api/chatroom/ws?chatroom=" + chatroom + "&user=" + user);
+                conn.onerror = function (evt) {
+                    var item = document.createElement("div");
+                    item.innerHTML = "<b>Unable to Connect.</b>";
+                    appendLog(item);
+                }
+                conn.onclose = function (evt) {
+                    var item = document.createElement("div");
+                    item.innerHTML = "<b>Connection closed.</b>";
+                    appendLog(item);
+                };
                 conn.onmessage = function (evt) {
                     var messages = evt.data.split('\n');
                     for (var i = 0; i < messages.length; i++) {

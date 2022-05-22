@@ -11,8 +11,7 @@ import (
 
 type ChatRoomRouter struct {
 	*log.Logger
-	Service wschat.ChatroomService
-	Hub *wschat.Hub
+	Service *wschat.ChatroomService
 }
 
 var upgrader = websocket.Upgrader{
@@ -33,22 +32,14 @@ func (r ChatRoomRouter) OpenChatroom(c *gin.Context){
 	}
 	r.Logger.Printf("Incoming connection, chat: %s, user: %s", chatid, userId)
 	
-	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+
+	err := r.Service.RegisterIncoming(c.Writer, c.Request, chatid, userId)
 	if err != nil {
-		log.Println(err)
+		r.Logger.Printf("error registering: %s", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err})
 		return
 	}
-	client := &wschat.Client{
-		Hub: r.Hub, 
-		Conn: conn, 
-		Send: make(chan []byte, 256),
-	}
-	client.Hub.Register <- client
-
-	// Allow collection of memory referenced by the caller by doing all work in
-	// new goroutines.
-	go client.WritePump()
-	go client.ReadPump()
+	
 }
 
 func (r ChatRoomRouter) SendMessage(c *gin.Context){

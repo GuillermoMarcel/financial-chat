@@ -30,6 +30,7 @@ func (vc ViewsController) Chatroom(c *gin.Context){
 		http.StatusOK,
 		"chatroom.html",
 		gin.H{
+			"chatroomId": id,
 			"chatroomName": id, 
 			"username": user,
 		},

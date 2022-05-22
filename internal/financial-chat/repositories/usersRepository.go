@@ -31,4 +31,22 @@ func (r UserRepo) LoginUser(username string, password string) *models.User{
 	}
 }
 
+func (r UserRepo) FindUser(username string) *models.User{
+	return &models.User{
+		Username: username,
+		Password: "***",
+		Name: "Juan",
+		Chatrooms: []models.Chatroom{
+			{
+				Id: "cr-001",
+				Name: "First chroom",
+			},
+			{
+				Id: "asdf002",
+				Name: "Test seccond",
+			},
+		},
+	}
+}
+
 

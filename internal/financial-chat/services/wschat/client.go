@@ -9,6 +9,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/models"
 	"github.com/gorilla/websocket"
 )
 
@@ -38,13 +39,17 @@ var upgrader = websocket.Upgrader{
 
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
-	Hub *Hub
+	Hub *hub
 
 	// The websocket connection.
 	Conn *websocket.Conn
 
 	// Buffered channel of outbound messages.
 	Send chan []byte
+
+	recive chan incomingMessage
+
+	user *models.User
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -54,7 +59,7 @@ type Client struct {
 // reads from this goroutine.
 func (c *Client) ReadPump() {
 	defer func() {
-		c.Hub.Unregister <- c
+		c.Hub.unregister <- c
 		c.Conn.Close()
 	}()
 	c.Conn.SetReadLimit(maxMessageSize)
@@ -69,7 +74,7 @@ func (c *Client) ReadPump() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.Hub.Broadcast <- message
+		c.recive <- incomingMessage{content: message, client: c, user: *c.user}
 	}
 }
 
@@ -119,3 +124,8 @@ func (c *Client) WritePump() {
 	}
 }
 
+type incomingMessage struct {
+	content []byte
+	client *Client
+	user models.User
+}
