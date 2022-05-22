@@ -23,7 +23,7 @@
         }
 
         button {
-            background-color: #04AA6D;
+            background-color: #8adbbd;
             color: white;
             padding: 14px 20px;
             margin: 8px 0;
@@ -95,10 +95,15 @@
                     document.getElementById("chatrooms").appendChild(ref);
                 });
 
-                var elements = form.elements;
-                for (var i = 0, len = elements.length; i < len; ++i) {
-                    elements[i].readOnly = true;
-                }
+
+                var uname = document.getElementsByName("uname")[0];
+                uname.readOnly = true;
+                uname.disabled = true
+                document.getElementsByName("psw")[0].readOnly = true;
+                var logBtn = document.getElementsByName("login")[0]
+                logBtn.readOnly = true;
+                logBtn.disabled = true;
+                logBtn.style.backgroundColor = "#858585"
 
 
             };
@@ -125,7 +130,7 @@
                 <label for="psw"><b>Password</b></label>
                 <input type="password" placeholder="Enter Password" name="psw" required>
 
-                <button type="submit">Login</button>
+                <button type="submit" name="login">Login</button>
             </div>
 
         </form>
