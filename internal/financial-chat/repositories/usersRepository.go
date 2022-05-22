@@ -42,7 +42,7 @@ func (r UserRepo) FindUser(username string) *models.User{
 				Name: "First chroom",
 			},
 			{
-				Id: "asdf002",
+				Id: "cr-002",
 				Name: "Test seccond",
 			},
 		},

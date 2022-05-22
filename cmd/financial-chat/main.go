@@ -13,6 +13,13 @@ import (
 func main() {
 	logger := log.Default()
 
+	db, err := initializeDatabase()
+	if err != nil {
+		logger.Fatal(err)
+		return
+	}
+	logger.Printf("databse initialized %s\n", db.Name())
+
 	userRepo := repositories.UserRepo{}
 	chatRepo := repositories.ChatroomRepo{}
 
