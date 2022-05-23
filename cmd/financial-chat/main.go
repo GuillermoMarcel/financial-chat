@@ -34,10 +34,10 @@ func main() {
 	logger.Println("queue connected")
 	cons, prod := configureQueues()
 
-	botService := &bot.Service{
+	botService := bot.Service{
 		CmdProducer:     prod,
 		ResultsConsumer: cons,
-		Log:             log.New(os.Stdout, "BotService", log.LstdFlags),
+		Log:             log.New(os.Stderr, "BotService: ", log.LstdFlags),
 	}
 
 	userRepo := repositories.UserRepo{
@@ -48,10 +48,10 @@ func main() {
 	}
 
 	chatService := wschat.NewChatroomService(
-		log.New(os.Stdout, "Chat Service", log.LstdFlags),
+		log.New(os.Stderr, "Chat Service: ", log.LstdFlags),
 		&chatRepo,
 		&userRepo,
-		botService)
+		&botService)
 
 	loginController := routers.LoginController{
 		Log:  logger,

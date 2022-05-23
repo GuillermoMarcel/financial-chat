@@ -14,7 +14,7 @@ type Service struct {
 	ResultChan      chan queue.StockPriceResult
 }
 
-func (s Service) RequestStockPrice(chatroomId uint, userId uint, code string) {
+func (s *Service) RequestStockPrice(chatroomId uint, userId uint, code string) {
 	req := queue.StockPriceRequest{
 		ChatroomId: chatroomId,
 		UserId:     userId,
@@ -24,19 +24,22 @@ func (s Service) RequestStockPrice(chatroomId uint, userId uint, code string) {
 	s.CmdProducer.SendJson(req)
 }
 
-func (s Service) ReadIncoming() {
-	s.ResultsConsumer.Start()
-	defer s.ResultsConsumer.Stop()
-
-	log.Println("reading consumer results")
-
+func (s *Service) ReadIncoming() {
 	reader := make(chan []byte)
 	s.ResultsConsumer.ReturnChan = reader
 
+	s.ResultsConsumer.Start()
+	defer s.ResultsConsumer.Stop()
+
+	s.Log.Println("reading consumer results")
+
 	for msg := range reader {
+
 		var result queue.StockPriceResult
 		json.Unmarshal(msg, &result)
-
+		if s.ResultChan == nil {
+			s.Log.Printf("result channel not set, mesasge lost %v\n", result)
+		}
 		s.ResultChan <- result
 	}
 }

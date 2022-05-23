@@ -24,17 +24,22 @@ func (c Consumer) Start() {
 		nil,          // args
 	)
 	if err != nil {
-		fmt.Printf("3 mensaje no enviado: %s\n", err.Error())
+		fmt.Printf("queue unable to start consuming: %s\n", err.Error())
 		return
 	}
 
 	c.endChan = make(chan bool)
 
 	go func() {
+		fmt.Println("start reading queue messages")
 		for {
 			select {
 			case d := <-msgs:
-				fmt.Printf("message recived, queue:%s\n", c.Queue.Name)
+				fmt.Printf("consumer: message recived, queue:%s\n", c.Queue.Name)
+				if c.ReturnChan == nil {
+					fmt.Println("consumer return channel not set, mesage lost")
+					continue
+				}
 				c.ReturnChan <- d.Body
 			case <-c.endChan:
 				close(c.endChan)

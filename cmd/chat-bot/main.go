@@ -61,4 +61,13 @@ func main() {
 	}
 
 	controller.ServeApp()
+
+	// log.Printf("%v\n", controller)
+	// producer.SendJson(&queue.StockPriceResult{
+	// 	ChatroomId: 1,
+	// 	UserId:     1,
+	// 	StockCode:  "APPL.US",
+	// 	StockPrice: 12.34,
+	// })
+
 }
