@@ -5,4 +5,5 @@ type Config struct {
 	CmdQueue         string
 	ResponsesQueue   string
 	DatabaseLocation string
+	Port             int
 }

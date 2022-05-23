@@ -2,5 +2,6 @@
     "databaseLocation": "../../database.db",
     "brokerAddress": "amqp://guest:guest@localhost:5672/",
     "cmdQueue": "financial-cmds",
-    "responsesQueue": "financial-responses"
+    "responsesQueue": "financial-responses",
+    "port": 9090
 }

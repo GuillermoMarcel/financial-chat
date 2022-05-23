@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -87,5 +88,5 @@ func main() {
 		view.GET("/", viewController.Login)
 	}
 
-	r.Run()
+	r.Run(fmt.Sprintf(":%d", config.Port))
 }
