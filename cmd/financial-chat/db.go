@@ -15,7 +15,7 @@ func openDatabase() (*gorm.DB, error) {
 		return nil, errors.New("unable to connect to database")
 	}
 
-	err = initializeDatabase(db)
+	// err = initializeDatabase(db)
 	if err != nil {
 		return nil, err
 	}

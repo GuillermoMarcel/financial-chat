@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"log"
 	"time"
 
 	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/models"
@@ -10,7 +9,7 @@ import (
 )
 
 type ChatroomRepo struct {
-	db *gorm.DB
+	DB *gorm.DB
 }
 
 func (r ChatroomRepo) FindChatroom(chatId string) models.Chatroom {
@@ -21,12 +20,22 @@ func (r ChatroomRepo) SaveMessage(message string, user models.User, chat models.
 	m := &models.Message{
 		MessageId: uuid.New().String(),
 		Timestamp: time.Now(),
-		Content: message,
-		Sender: user,
-		
+		Content:   message,
+		Sender:    user,
+		Chatroom: chat,
 	}
 
-	log.Printf("new message %v\n", m)
+	r.DB.Create(&m)
+}
 
+func (r ChatroomRepo) GetLatestMessages(chatroomId uint) []models.Message{
+	var messages []models.Message
+	r.DB.
+		Where(&models.Message{ChatroomId: chatroomId}).
+		Order("timestamp desc").
+		Limit(50).
+		Preload("Sender").
+		Find(&messages)
 
+	return messages
 }

@@ -50,6 +50,8 @@ type Client struct {
 	recive chan incomingMessage
 
 	user *models.User
+
+	chatroom *models.Chatroom
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -74,7 +76,7 @@ func (c *Client) ReadPump() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.recive <- incomingMessage{content: message, client: c, user: *c.user}
+		c.recive <- incomingMessage{content: message, client: c, user: c.user, chatroom: c.chatroom}
 	}
 }
 
@@ -125,7 +127,8 @@ func (c *Client) WritePump() {
 }
 
 type incomingMessage struct {
-	content []byte
-	client  *Client
-	user    models.User
+	content  []byte
+	client   *Client
+	user     *models.User
+	chatroom *models.Chatroom
 }

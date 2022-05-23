@@ -14,7 +14,6 @@ type Chatroom struct {
 }
 
 type Message struct {
-	gorm.Model
 	MessageId  string `gorm:"primaryKey"`
 	Timestamp  time.Time
 	Content    string

@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/repositories"
 	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/routers"
@@ -13,7 +12,7 @@ import (
 
 func main() {
 
-	os.RemoveAll("../../database.db")
+	// os.RemoveAll("../../database.db")
 
 	logger := log.Default()
 
@@ -27,7 +26,9 @@ func main() {
 	userRepo := repositories.UserRepo{
 		DB: db,
 	}
-	chatRepo := repositories.ChatroomRepo{}
+	chatRepo := repositories.ChatroomRepo{
+		DB: db,
+	}
 
 	chatService := wschat.NewChatroomService(log.Default(), &chatRepo, &userRepo)
 
