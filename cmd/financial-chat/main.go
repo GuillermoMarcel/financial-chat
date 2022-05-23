@@ -22,7 +22,7 @@ func main() {
 		return
 	}
 
-	db, err := openDatabase(config.DatabaseLocation)
+	db, err := openDatabase(config.DatabaseLocation, config.InitializeDatabase)
 	if err != nil {
 		logger.Fatal(err)
 		return

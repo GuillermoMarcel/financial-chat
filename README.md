@@ -39,8 +39,23 @@ cd .\cmd\chat-bot\
 go run .\ -c ..\..\config\bot.json
 ```
 
-
 change any necesary configuration on the ./config files
+
+Property on \config\chat.json `initializeDatabase` if true will remove current database and redeploy a clean version. Set this to false to persist information.
+
+## USAGE
+Once the applications are running in the browser go to the url `localhost:8080` or as you had configured.
+
+Use the next users for login
+
+|User|Pass|
+|---|---|
+|guille|guille|
+|andre|asdf|
+
+You should encounter 2 chatrooms. Select one to enter.
+
+You can ask for share price with the command `/share={code}` like this `/share=aapl.us`
 
 
 Author Guillermo Marcel

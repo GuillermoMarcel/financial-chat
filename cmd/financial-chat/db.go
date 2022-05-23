@@ -3,21 +3,29 @@ package main
 import (
 	"errors"
 	"log"
+	"os"
 
 	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/models"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
-func openDatabase(dbFileName string) (*gorm.DB, error) {
+func openDatabase(dbFileName string, init bool) (*gorm.DB, error) {
+
+	if init {
+		os.Remove(dbFileName)
+	}
+
 	db, err := gorm.Open(sqlite.Open(dbFileName), &gorm.Config{})
 	if err != nil {
 		return nil, errors.New("unable to connect to database")
 	}
 
-	// err = initializeDatabase(db)
-	if err != nil {
-		return nil, err
+	if init {
+		err = initializeDatabase(db)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return db, nil
@@ -44,12 +52,12 @@ func initializeDatabase(db *gorm.DB) error {
 	}
 
 	chat1 := &models.Chatroom{
-		Name:    "The very first",
+		Name:    "Chatroom1",
 		Members: []*models.User{user1, user2},
 	}
 
 	chat2 := &models.Chatroom{
-		Name:    "Second best",
+		Name:    "Other Chatroom",
 		Members: []*models.User{user1, user2},
 	}
 
