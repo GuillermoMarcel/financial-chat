@@ -20,6 +20,8 @@ func (r UserRepo) LoginUser(username string, password string) *models.User {
 	if result.Username =="" {
 		return nil
 	}
+
+	//Should be encrypted
 	if result.Password == password {
 		return &result
 	}
@@ -27,9 +29,7 @@ func (r UserRepo) LoginUser(username string, password string) *models.User {
 }
 
 func (r UserRepo) FindUser(username string) *models.User {
-	return &models.User{
-		Username: username,
-		Password: "***",
-		Name:     "Juan",
-	}
+	var result models.User
+	r.DB.Where(&models.User{Username: username}).Preload("Chatrooms").First(&result)
+	return &result
 }

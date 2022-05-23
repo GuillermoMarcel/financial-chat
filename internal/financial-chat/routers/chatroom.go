@@ -3,6 +3,7 @@ package routers
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/services/wschat"
 	"github.com/gin-gonic/gin"
@@ -20,12 +21,15 @@ var upgrader = websocket.Upgrader{
 }
 
 func (r ChatRoomRouter) OpenChatroom(c *gin.Context) {
-	// chatidInput, ok := c.GetQuery("chatroom")
-	// if !ok {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"message": "chatroom id requestd"})
-	// 	return
-	// }
-	chatId := c.GetUint("chatroom")
+	chatidInput, ok := c.GetQuery("chatroom")
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "chatroom id requestd"})
+		return
+	}
+	chatId, err := strconv.ParseUint(chatidInput, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "bad format"})
+	}
 
 	userId, ok := c.GetQuery("user")
 	if !ok {
@@ -34,7 +38,7 @@ func (r ChatRoomRouter) OpenChatroom(c *gin.Context) {
 	}
 	r.Logger.Printf("Incoming connection, chat: %d, user: %s", chatId, userId)
 
-	err := r.Service.RegisterIncoming(c.Writer, c.Request, chatId, userId)
+	err = r.Service.RegisterIncoming(c.Writer, c.Request, uint(chatId), userId)
 	if err != nil {
 		r.Logger.Printf("error registering: %s", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err})

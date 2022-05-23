@@ -53,12 +53,12 @@ func initializeDatabase(db *gorm.DB) error {
 		Members: []*models.User{user1,user2},
 	}
 
-	db.Create(chat1)
-	db.Create(chat2)
-
+	
 	db.Create(user1)
 	db.Create(user2)
 
+	db.Create(chat1)
+	db.Create(chat2)
+	
 	return nil
-
 }
