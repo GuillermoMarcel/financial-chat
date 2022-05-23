@@ -6,13 +6,12 @@ import (
 	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/repositories"
 	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/routers"
 	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/services/wschat"
+	"github.com/streadway/amqp"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-
-	// os.RemoveAll("../../database.db")
 
 	logger := log.Default()
 
@@ -22,6 +21,18 @@ func main() {
 		return
 	}
 	logger.Printf("databse initialized %s\n", db.Name())
+
+	//Queue
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	if err != nil {
+		logger.Printf("error to connecto to queue %s", err.Error())
+		return
+	}
+	defer conn.Close()
+	logger.Println("queue connected")
+
+
+
 
 	userRepo := repositories.UserRepo{
 		DB: db,
