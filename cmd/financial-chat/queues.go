@@ -7,24 +7,20 @@ import (
 	"github.com/streadway/amqp"
 )
 
-func main() {
-	logger := log.Default()
-
+func configureQueues(l log.Logger) (*queue.Consumer, *queue.Producer) {
 	//Queue
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	if err != nil {
-		logger.Printf("error to connecto to queue %s", err.Error())
-		return
+		log.Printf("error to connecto to queue %s", err.Error())
+		return nil, nil
 	}
-	defer conn.Close()
-	logger.Println("queue connected")
+	log.Println("queue connected")
 
 	ch, err := conn.Channel()
 	if err != nil {
-		logger.Printf("2 error to connecto to queue %s", err.Error())
-		return
+		log.Printf("error to open queue channel: %s", err.Error())
+		return nil, nil
 	}
-	defer ch.Close()
 
 	cmdsQueue, err := ch.QueueDeclare(
 		"financial-cmds", // name
@@ -43,22 +39,16 @@ func main() {
 		false,                 // no-wait
 		nil,                   // arguments
 	)
-	consumer := queue.Consumer{
+
+	producer := queue.Producer{
 		Queue:   cmdsQueue,
 		Channel: ch,
 	}
 
-	producer := queue.Producer{
+	consumer := queue.Consumer{
 		Queue:   responseQueue,
 		Channel: ch,
 	}
 
-	defer consumer.Stop()
-
-	producer.SendMessage("que se yo")
-
-	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
-	forever := make(chan bool)
-	<-forever
-
+	return &consumer, &producer
 }
