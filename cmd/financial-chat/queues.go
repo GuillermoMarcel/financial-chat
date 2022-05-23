@@ -7,7 +7,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
-func configureQueues(conn *amqp.Connection, cmdQueueName string, responseQueueName string) (*queue.Consumer, *queue.Producer) {
+func configureQueues(conn *amqp.Connection, cmdQueueName string, responseQueueName string) (queue.Consumer, *queue.Producer) {
 
 	ch, err := conn.Channel()
 	if err != nil {
@@ -38,7 +38,7 @@ func configureQueues(conn *amqp.Connection, cmdQueueName string, responseQueueNa
 		Channel: ch,
 	}
 
-	consumer := queue.Consumer{
+	consumer := queue.AmqpConsumer{
 		Queue:   responseQueue,
 		Channel: ch,
 	}

@@ -10,7 +10,11 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}\\cmd\\financial-chat",
-            "output": "${workspaceFolder}\\__chat_debug_bin"
+            "output": "${workspaceFolder}\\__chat_debug_bin",
+            "args": [
+                "-c",
+                "../../config/chat.json"
+            ]
         },
         {
             "name": "chat-bot",

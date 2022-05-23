@@ -49,7 +49,7 @@ func main() {
 		false,
 		nil,
 	)
-	consumer := queue.Consumer{
+	consumer := &queue.AmqpConsumer{
 		Queue:   cmdsQueue,
 		Channel: ch,
 	}

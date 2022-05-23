@@ -6,14 +6,20 @@ import (
 	"github.com/streadway/amqp"
 )
 
-type Consumer struct {
+type Consumer interface {
+	Start()
+	Stop()
+	RegisterReturnChan(chan []byte)
+}
+
+type AmqpConsumer struct {
 	Queue      amqp.Queue
 	Channel    *amqp.Channel
 	endChan    chan bool
 	ReturnChan chan []byte
 }
 
-func (c Consumer) Start() {
+func (c *AmqpConsumer) Start() {
 	msgs, err := c.Channel.Consume(
 		c.Queue.Name, // queue
 		"",           // consumer
@@ -58,9 +64,14 @@ func (c Consumer) Start() {
 	}()
 }
 
-func (c Consumer) Stop() {
+func (c *AmqpConsumer) Stop() {
 	if c.endChan != nil {
 		c.endChan <- true
 	}
 	c.Channel.Close()
+	c.ReturnChan = nil
+}
+
+func (c *AmqpConsumer) RegisterReturnChan(ch chan []byte) {
+	c.ReturnChan = ch
 }

@@ -19,9 +19,10 @@ type RequestController struct {
 
 func (r RequestController) ServeApp() {
 	queueChan := make(chan []byte)
-	r.CmdConsumer.ReturnChan = queueChan
+	r.CmdConsumer.RegisterReturnChan(queueChan)
 
 	r.CmdConsumer.Start()
+	defer r.CmdConsumer.Stop()
 
 	for msg := range queueChan {
 		var request queue.StockPriceRequest

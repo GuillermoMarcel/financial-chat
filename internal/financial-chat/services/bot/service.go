@@ -10,7 +10,7 @@ import (
 type Service struct {
 	Log             *log.Logger
 	CmdProducer     *queue.Producer
-	ResultsConsumer *queue.Consumer
+	ResultsConsumer queue.Consumer
 	ResultChan      chan queue.StockPriceResult
 }
 
@@ -26,7 +26,7 @@ func (s *Service) RequestStockPrice(chatroomId uint, userId uint, code string) {
 
 func (s *Service) ReadIncoming() {
 	reader := make(chan []byte)
-	s.ResultsConsumer.ReturnChan = reader
+	s.ResultsConsumer.RegisterReturnChan(reader)
 
 	s.ResultsConsumer.Start()
 	defer s.ResultsConsumer.Stop()
