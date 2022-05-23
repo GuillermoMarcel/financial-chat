@@ -36,21 +36,21 @@ func main() {
 		nil,              // arguments
 	)
 
-	// responseQueue, err := ch.QueueDeclare(
-	// 	"financial-responses", // name
-	// 	false,                 // durable
-	// 	false,                 // delete when unused
-	// 	false,                 // exclusive
-	// 	false,                 // no-wait
-	// 	nil,                   // arguments
-	// )
+	responseQueue, err := ch.QueueDeclare(
+		"financial-responses", // name
+		false,                 // durable
+		false,                 // delete when unused
+		false,                 // exclusive
+		false,                 // no-wait
+		nil,                   // arguments
+	)
 	consumer := queue.Consumer{
 		Queue:   cmdsQueue,
 		Channel: ch,
 	}
 
 	producer := queue.Producer{
-		Queue:   cmdsQueue,
+		Queue:   responseQueue,
 		Channel: ch,
 	}
 	defer consumer.Stop()
@@ -60,11 +60,5 @@ func main() {
 		ReturnProducer: producer,
 	}
 
-	// controller.ServeApp()
-	controller.ExecuteQuery(queue.StockPriceRequest{
-		ChatroomId: 2,
-		UserId:     1,
-		StockCode:  "aapl.usa",
-	})
-
+	controller.ServeApp()
 }

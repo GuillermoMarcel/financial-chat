@@ -34,6 +34,7 @@ func (c Consumer) Start() {
 		for {
 			select {
 			case d := <-msgs:
+				fmt.Printf("message recived, queue:%s\n", c.Queue.Name)
 				c.ReturnChan <- d.Body
 			case <-c.endChan:
 				close(c.endChan)

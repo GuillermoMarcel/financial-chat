@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/models"
 	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/repositories"
+	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/services/bot"
+	"github.com/GuillermoMarcel/financial-chat/internal/shared/queue"
 )
 
 type ChatroomService struct {
@@ -17,20 +20,29 @@ type ChatroomService struct {
 	userRepo     *repositories.UserRepo
 	hubs         map[uint]*hub
 	incoming     chan incomingMessage
+	botService   *bot.Service
+	botResults   chan queue.StockPriceResult
 }
 
-func NewChatroomService(log *log.Logger, chatRepo *repositories.ChatroomRepo, userRepo *repositories.UserRepo) *ChatroomService {
-	log.SetPrefix("ChatService")
+func NewChatroomService(log *log.Logger, chatRepo *repositories.ChatroomRepo, userRepo *repositories.UserRepo, bot *bot.Service) *ChatroomService {
+	log.SetPrefix("ChatService: ")
 	hubs := make(map[uint]*hub)
 	incChan := make(chan incomingMessage)
+
 	cs := ChatroomService{
 		hubs:         hubs,
 		chatroomRepo: chatRepo,
 		userRepo:     userRepo,
 		log:          log,
 		incoming:     incChan,
+		botService:   bot,
 	}
+
 	go cs.readIncoming()
+	go cs.reciveBotResults()
+
+	go bot.ReadIncoming()
+
 	return &cs
 }
 
@@ -74,11 +86,11 @@ func (s ChatroomService) RegisterIncoming(w http.ResponseWriter, r *http.Request
 	}
 
 	client := &Client{
-		Hub:    hub,
-		Conn:   conn,
-		Send:   make(chan []byte, 256),
-		recive: s.incoming,
-		user:   user,
+		Hub:      hub,
+		Conn:     conn,
+		Send:     make(chan []byte, 256),
+		recive:   s.incoming,
+		user:     user,
 		chatroom: &chatroom,
 	}
 	client.Hub.register <- client
@@ -93,22 +105,30 @@ func (s ChatroomService) RegisterIncoming(w http.ResponseWriter, r *http.Request
 	return nil
 }
 
-func (s ChatroomService) loadOldMessages(client *Client, chatroom models.Chatroom){
+func (s ChatroomService) loadOldMessages(client *Client, chatroom models.Chatroom) {
 	messages := s.chatroomRepo.GetLatestMessages(chatroom.ID)
 
-	for i := len(messages)-1; i >= 0; i-- {
+	for i := len(messages) - 1; i >= 0; i-- {
 		m := messages[i]
 		c := fmt.Sprintf("(%s) %s: %s", m.Timestamp.Format("2006-01-02 15:04:05"), m.Sender.Name, m.Content)
 		client.Send <- []byte(c)
-	 }
+	}
 }
-
 
 func (s ChatroomService) readIncoming() {
 	defer close(s.incoming)
 	for {
 		message := <-s.incoming
 		content := string(message.content)
+
+		if strings.HasPrefix(content, "/") {
+			s.log.Println("command message")
+			s.log.Printf("message not sent: %s\n", content)
+
+			s.botService.RequestStockPrice(message.chatroom.ID, message.user.ID, strings.Split(content, "=")[1])
+
+			continue
+		}
 
 		s.chatroomRepo.SaveMessage(content, *message.user, *message.chatroom)
 
@@ -118,3 +138,30 @@ func (s ChatroomService) readIncoming() {
 	}
 }
 
+func (s ChatroomService) reciveBotResults() {
+	botResChan := make(chan queue.StockPriceResult)
+	s.botService.ResultChan = botResChan
+	defer func() {
+		close(botResChan)
+		s.botService.ResultChan = nil
+	}()
+
+	log.Println("reading bot service results")
+	for inc := range botResChan {
+		var outgoing string
+		if inc.Error == nil {
+			outgoing = fmt.Sprintf("(%s) %s: %s", time.Now().Format("2006-01-02 15:04:05"), "FinancialBot", *inc.Error)
+		} else {
+			outgoing = fmt.Sprintf("(%s) %s: %s quota is %.4f per share", time.Now().Format("2006-01-02 15:04:05"), "FinancialBot", inc.StockCode, inc.StockPrice)
+		}
+
+		hub, ok := s.hubs[inc.ChatroomId]
+		if !ok {
+			log.Printf("channel closed chanell:%d, message: %v", inc.ChatroomId, inc)
+			return
+		}
+
+		hub.broadcast <- []byte(outgoing)
+	}
+
+}

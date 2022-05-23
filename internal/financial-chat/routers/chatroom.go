@@ -46,7 +46,3 @@ func (r ChatRoomRouter) OpenChatroom(c *gin.Context) {
 	}
 
 }
-
-func (r ChatRoomRouter) SendMessage(c *gin.Context) {
-
-}

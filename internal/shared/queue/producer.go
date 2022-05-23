@@ -34,5 +34,5 @@ func (p Producer) SendJson(message interface{}) {
 		return
 	}
 
-	fmt.Println("mensaje enviado")
+	fmt.Printf("message sent queue:%s\n", p.Queue.Name)
 }

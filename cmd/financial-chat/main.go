@@ -2,9 +2,11 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/repositories"
 	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/routers"
+	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/services/bot"
 	"github.com/GuillermoMarcel/financial-chat/internal/financial-chat/services/wschat"
 	"github.com/streadway/amqp"
 
@@ -30,9 +32,13 @@ func main() {
 	}
 	defer conn.Close()
 	logger.Println("queue connected")
+	cons, prod := configureQueues()
 
-
-
+	botService := &bot.Service{
+		CmdProducer:     prod,
+		ResultsConsumer: cons,
+		Log:             log.New(os.Stdout, "BotService", log.LstdFlags),
+	}
 
 	userRepo := repositories.UserRepo{
 		DB: db,
@@ -41,7 +47,11 @@ func main() {
 		DB: db,
 	}
 
-	chatService := wschat.NewChatroomService(log.Default(), &chatRepo, &userRepo)
+	chatService := wschat.NewChatroomService(
+		log.New(os.Stdout, "Chat Service", log.LstdFlags),
+		&chatRepo,
+		&userRepo,
+		botService)
 
 	loginController := routers.LoginController{
 		Log:  logger,

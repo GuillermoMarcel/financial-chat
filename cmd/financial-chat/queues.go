@@ -7,7 +7,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
-func configureQueues(l log.Logger) (*queue.Consumer, *queue.Producer) {
+func configureQueues() (*queue.Consumer, *queue.Producer) {
 	//Queue
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	if err != nil {
