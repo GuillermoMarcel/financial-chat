@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/GuillermoMarcel/financial-chat/internal/chat-bot/controller"
 	"github.com/GuillermoMarcel/financial-chat/internal/shared/queue"
 	"github.com/streadway/amqp"
 )
@@ -35,30 +36,35 @@ func main() {
 		nil,              // arguments
 	)
 
-	responseQueue, err := ch.QueueDeclare(
-		"financial-responses", // name
-		false,                 // durable
-		false,                 // delete when unused
-		false,                 // exclusive
-		false,                 // no-wait
-		nil,                   // arguments
-	)
+	// responseQueue, err := ch.QueueDeclare(
+	// 	"financial-responses", // name
+	// 	false,                 // durable
+	// 	false,                 // delete when unused
+	// 	false,                 // exclusive
+	// 	false,                 // no-wait
+	// 	nil,                   // arguments
+	// )
 	consumer := queue.Consumer{
 		Queue:   cmdsQueue,
 		Channel: ch,
 	}
 
 	producer := queue.Producer{
-		Queue:   responseQueue,
+		Queue:   cmdsQueue,
 		Channel: ch,
 	}
-
 	defer consumer.Stop()
 
-	producer.SendMessage("que se yo")
+	controller := controller.RequestController{
+		CmdConsumer:    consumer,
+		ReturnProducer: producer,
+	}
 
-	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
-	forever := make(chan bool)
-	<-forever
+	// controller.ServeApp()
+	controller.ExecuteQuery(queue.StockPriceRequest{
+		ChatroomId: 2,
+		UserId:     1,
+		StockCode:  "aapl.usa",
+	})
 
 }

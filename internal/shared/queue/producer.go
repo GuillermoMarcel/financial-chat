@@ -1,6 +1,7 @@
 package queue
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/streadway/amqp"
@@ -11,19 +12,25 @@ type Producer struct {
 	Channel *amqp.Channel
 }
 
-func (p Producer) SendMessage(message string) {
+func (p Producer) SendJson(message interface{}) {
 
-	err := p.Channel.Publish(
+	content, err := json.Marshal(message)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	err = p.Channel.Publish(
 		"",           // exchange
 		p.Queue.Name, // routing key
 		false,        // mandatory
 		false,        // immediate
 		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte(message),
+			ContentType: "application/json",
+			Body:        content,
 		})
 	if err != nil {
-		fmt.Printf("3 mensaje no enviado: %s\n", err.Error())
+		fmt.Printf("couldn't send message: %s\n", err.Error())
 		return
 	}
 

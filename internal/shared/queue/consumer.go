@@ -2,15 +2,15 @@ package queue
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/streadway/amqp"
 )
 
 type Consumer struct {
-	Queue   amqp.Queue
-	Channel *amqp.Channel
-	endChan chan bool
+	Queue      amqp.Queue
+	Channel    *amqp.Channel
+	endChan    chan bool
+	ReturnChan chan []byte
 }
 
 func (c Consumer) Start() {
@@ -34,8 +34,10 @@ func (c Consumer) Start() {
 		for {
 			select {
 			case d := <-msgs:
-				log.Printf("Received a message: %s", d.Body)
+				c.ReturnChan <- d.Body
 			case <-c.endChan:
+				close(c.endChan)
+				c.endChan = nil
 				return
 			}
 		}
@@ -43,6 +45,8 @@ func (c Consumer) Start() {
 }
 
 func (c Consumer) Stop() {
-	c.endChan <- true
+	if c.endChan != nil {
+		c.endChan <- true
+	}
 	c.Channel.Close()
 }
