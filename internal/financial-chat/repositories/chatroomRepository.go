@@ -12,8 +12,10 @@ type ChatroomRepo struct {
 	DB *gorm.DB
 }
 
-func (r ChatroomRepo) FindChatroom(chatId string) models.Chatroom {
-	return models.Chatroom{}
+func (r ChatroomRepo) FindChatroom(chatId uint) models.Chatroom {
+	var c models.Chatroom
+	r.DB.First(&c, chatId)
+	return c
 }
 
 func (r ChatroomRepo) SaveMessage(message string, user models.User, chat models.Chatroom) {

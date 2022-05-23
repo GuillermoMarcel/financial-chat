@@ -41,7 +41,9 @@ func main() {
 		Service: chatService,
 	}
 
-	viewController := routers.ViewsController{}
+	viewController := routers.ViewsController{
+		ChatroomRepo: chatRepo,
+	}
 
 	r := gin.Default()
 
