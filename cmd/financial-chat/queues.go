@@ -7,14 +7,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
-func configureQueues() (*queue.Consumer, *queue.Producer) {
-	//Queue
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-	if err != nil {
-		log.Printf("error to connecto to queue %s", err.Error())
-		return nil, nil
-	}
-	log.Println("queue connected")
+func configureQueues(conn *amqp.Connection, cmdQueueName string, responseQueueName string) (*queue.Consumer, *queue.Producer) {
 
 	ch, err := conn.Channel()
 	if err != nil {

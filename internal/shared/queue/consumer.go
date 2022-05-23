@@ -30,6 +30,9 @@ func (c Consumer) Start() {
 
 	c.endChan = make(chan bool)
 
+	closeChan := make(chan *amqp.Error)
+	c.Channel.NotifyClose(closeChan)
+
 	go func() {
 		fmt.Println("start reading queue messages")
 		for {
@@ -44,6 +47,11 @@ func (c Consumer) Start() {
 			case <-c.endChan:
 				close(c.endChan)
 				c.endChan = nil
+				return
+
+			case closeMsg := <-closeChan:
+				//Shoud alert to close or retry connection.
+				fmt.Printf("channel closed: %s\n", closeMsg.Reason)
 				return
 			}
 		}

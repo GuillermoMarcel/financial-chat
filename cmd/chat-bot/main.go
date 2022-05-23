@@ -11,8 +11,13 @@ import (
 func main() {
 	logger := log.Default()
 
+	config := readConfigs(logger)
+	if config == nil {
+		return
+	}
+
 	//Queue
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial(config.BrokerAddress)
 	if err != nil {
 		logger.Printf("error to connecto to queue %s", err.Error())
 		return
@@ -22,27 +27,27 @@ func main() {
 
 	ch, err := conn.Channel()
 	if err != nil {
-		logger.Printf("2 error to connecto to queue %s", err.Error())
+		logger.Printf("error opening channel %s", err.Error())
 		return
 	}
 	defer ch.Close()
 
 	cmdsQueue, err := ch.QueueDeclare(
-		"financial-cmds", // name
-		false,            // durable
-		false,            // delete when unused
-		false,            // exclusive
-		false,            // no-wait
-		nil,              // arguments
+		config.CmdQueue,
+		false,
+		false,
+		false,
+		false,
+		nil,
 	)
 
 	responseQueue, err := ch.QueueDeclare(
-		"financial-responses", // name
-		false,                 // durable
-		false,                 // delete when unused
-		false,                 // exclusive
-		false,                 // no-wait
-		nil,                   // arguments
+		config.ResponsesQueue,
+		false,
+		false,
+		false,
+		false,
+		nil,
 	)
 	consumer := queue.Consumer{
 		Queue:   cmdsQueue,
@@ -61,13 +66,5 @@ func main() {
 	}
 
 	controller.ServeApp()
-
-	// log.Printf("%v\n", controller)
-	// producer.SendJson(&queue.StockPriceResult{
-	// 	ChatroomId: 1,
-	// 	UserId:     1,
-	// 	StockCode:  "APPL.US",
-	// 	StockPrice: 12.34,
-	// })
 
 }

@@ -9,8 +9,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func openDatabase() (*gorm.DB, error) {
-	db, err := gorm.Open(sqlite.Open("../../database.db"), &gorm.Config{})
+func openDatabase(dbFileName string) (*gorm.DB, error) {
+	db, err := gorm.Open(sqlite.Open(dbFileName), &gorm.Config{})
 	if err != nil {
 		return nil, errors.New("unable to connect to database")
 	}
@@ -31,7 +31,7 @@ func initializeDatabase(db *gorm.DB) error {
 		return err
 	}
 
-	user1 :=&models.User{
+	user1 := &models.User{
 		Username: "guille",
 		Password: "guille",
 		Name:     "Guillermo",
@@ -44,21 +44,20 @@ func initializeDatabase(db *gorm.DB) error {
 	}
 
 	chat1 := &models.Chatroom{
-		Name:       "The very first",
+		Name:    "The very first",
 		Members: []*models.User{user1, user2},
 	}
 
 	chat2 := &models.Chatroom{
-		Name:       "Second best",
-		Members: []*models.User{user1,user2},
+		Name:    "Second best",
+		Members: []*models.User{user1, user2},
 	}
 
-	
 	db.Create(user1)
 	db.Create(user2)
 
 	db.Create(chat1)
 	db.Create(chat2)
-	
+
 	return nil
 }

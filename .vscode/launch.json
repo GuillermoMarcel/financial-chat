@@ -10,14 +10,19 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}\\cmd\\financial-chat",
-            "output": "${workspaceFolder}\\__debug_bin"
+            "output": "${workspaceFolder}\\__chat_debug_bin"
         },
         {
             "name": "chat-bot",
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}\\cmd\\chat-bot"
+            "program": "${workspaceFolder}\\cmd\\chat-bot",
+            "output": "${workspaceFolder}\\__bot_debug_bin",
+            "args": [
+                "-c",
+                "../../config/bot.json"
+            ]
         }
     ]
 }

@@ -14,10 +14,14 @@ import (
 )
 
 func main() {
-
 	logger := log.Default()
 
-	db, err := openDatabase()
+	config := readConfigs(logger)
+	if config == nil {
+		return
+	}
+
+	db, err := openDatabase(config.DatabaseLocation)
 	if err != nil {
 		logger.Fatal(err)
 		return
@@ -25,14 +29,14 @@ func main() {
 	logger.Printf("databse initialized %s\n", db.Name())
 
 	//Queue
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial(config.BrokerAddress)
 	if err != nil {
 		logger.Printf("error to connecto to queue %s", err.Error())
 		return
 	}
 	defer conn.Close()
 	logger.Println("queue connected")
-	cons, prod := configureQueues()
+	cons, prod := configureQueues(conn, config.CmdQueue, config.ResponsesQueue)
 
 	botService := bot.Service{
 		CmdProducer:     prod,
